@@ -41,7 +41,7 @@
         font-size: 16px;
         cursor: pointer;
       }
-      button:hover {
+      .guess:hover {
         background-color: #0056b3;
       }
       @media (max-width: 600px) {
@@ -53,24 +53,31 @@
         display: block;
       }
       h3 {
-        color: transparent;
+        color: green;
       }
       span {
         background-color: white;
         cursor: pointer;
+      }
+      .restart {
+        background-color: #059669;
+      }
+      .restart:hover {
+        background-color: rgba(5, 79, 5, 0.854);
       }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>Number Guessing Game</h1>
-      <h2>‎</h2>
+      <h2>Guess in the input below</h2>
       <h3>‎</h3>
       <form>
-        <input type="text" name="" id="guessInput" placeholder="Guess the number" />
-        <button type="submit">Submit</button>
+        <input type="text" name="" id="guessInput"/>
+        <button class="guess" type="submit">Submit</button>
       </form>
       <p>You've <span id="count">10</span> attempts left !! 😶‍🌫️</p>
+      <button class="restart" onclick="restart()">Restart</button>
     </div>
 
     <script>
@@ -81,6 +88,7 @@
       const h3 = document.querySelector("h3");
       const count = document.getElementById("count");
       let attemptsLeft = parseInt(count.innerText);
+      const buttonEl = document.querySelector('button');
       const random = Math.floor(Math.random() * 100) + 1;
 
       form.addEventListener("submit", function (e) {
@@ -95,7 +103,8 @@
           count.innerText = attemptsLeft;
           if (attemptsLeft <= 0 && guess !== random) {
             h2.innerText = "You've lost the game 😢";
-            input.disabled = true;
+            h3.innerText = "The number was " + random + "🐸";
+            buttonEl.disabled = true;
             return;
           }
           if (guess === random) {
@@ -103,15 +112,18 @@
             input.disabled = true;
           } else if (guess > random) {
             h2.innerText = "Too high! 🙄";
+            input.value = '';
           } else if (guess < random) {
             h2.innerText = "Too low! 🤨";
+            input.value = '';
           }
         }
       });
 
-      cheat.addEventListener("click", function () {
-        h3.innerText = "The number is " + random + "🐸";
-      });
+
+      function restart() {
+        location.reload(true);
+      }
     </script>
   </body>
 </html>
