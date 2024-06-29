@@ -15,20 +15,25 @@
       }
       .container {
         display: flex;
-        height: 100vh;
+        height: 50vh;
         justify-content: center;
         align-items: center;
         flex-direction: column;
         gap: 10px;
       }
-      .container button {
-        background-color: #212121;
-        color: whitesmoke;
-        padding: 10px 20px;
+      button {
         border-radius: 20px;
         border: 2px solid transparent;
       }
+      a {
+        background-color: #212121;
+        /* color: whitesmoke; */
+        padding: 10px 20px;
+        border-radius: 20px;
+  
+      }
       button:hover {
+        transition: 1s;
         border: 2px solid blue;
         cursor: pointer;
       }
@@ -36,17 +41,19 @@
         text-decoration: none;
         font-size: 18px;
       }
+
+
+
+
     </style>
   </head>
   <body>
     <div class="container">
-      <button><a href="bgChanger.html">Background Changer</a></button>
-      <button><a href="bmiCalculator.html">BMI Calculator</a></button>
-      <button><a href="expenseTracker.html">Expense Tracker</a></button>
-      <button><a href="digitalClock.html">Digital Clock</a></button>
-      <button>
-        <a href="numberGuessingGame.html">Number Guessing game</a>
-      </button>
+      <button class="glow-on-hover"><a href="bgChanger.html">Background Changer</a></button>
+      <button class="animated-button"><a href="bmiCalculator.html">BMI Calculator</a></button>
+      <button class="animated-button"><a href="expenseTracker.html">Expense Tracker</a></button>
+      <button class="animated-button"><a href="digitalClock.html">Digital Clock</a></button>
+      <button class="animated-button"><a href="numberGuessingGame.html">Number Guessing game</a></button>
     </div>
   </body>
 </html>
