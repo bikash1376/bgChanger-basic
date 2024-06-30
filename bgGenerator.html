@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #212121;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 2s;
+        }
+        button {
+            padding: 6px 15px;
+            color: white;
+            font-size: 20px;
+            border: none;
+            border-radius: 5px;
+            margin: 10px;
+        }
+        #start {
+            background-color: blue;
+        }
+        #stop {
+            background-color: green;
+        }
+        select {
+            padding: 6px 15px;
+            font-size: 20px;
+            border: none;
+            border-radius: 5px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="start">Start</button>
+        <button id="stop">Stop</button>
+        <select id="timerInterval">
+            <option value="2000">2 Seconds</option>
+            <option value="3000">3 Seconds</option>
+            <option value="5000">5 Seconds</option>
+        </select>
+    </div>
+    <script>
+        const start = document.getElementById("start");
+        const stop = document.getElementById("stop");
+        const timerInterval = document.getElementById("timerInterval");
+        const container = document.querySelector('.container');
+        let interval;
+        let currentInterval = 2000; // Default to 2 seconds
+
+        function generateRandomColor() {
+            const code = "0123456789ABCDEF";
+            let saveCode = "#"; // Start with '#' for a hex color code
+            for (let i = 0; i < 6; i++) {
+                saveCode += code[Math.floor(Math.random() * 16)];
+            }
+            return saveCode;
+        }
+
+        start.addEventListener("click", () => {
+            if (!interval) {
+                interval = setInterval(() => {
+                    container.style.backgroundColor = generateRandomColor();
+                }, currentInterval);
+            }
+        });
+
+        stop.addEventListener("click", () => {
+            clearInterval(interval);
+            interval = null;
+        });
+
+        timerInterval.addEventListener("change", (event) => {
+            currentInterval = parseInt(event.target.value);
+            if (interval) {
+                clearInterval(interval);
+                interval = setInterval(() => {
+                    container.style.backgroundColor = generateRandomColor();
+                }, currentInterval);
+            }
+        });
+    </script>
+</body>
+</html>
