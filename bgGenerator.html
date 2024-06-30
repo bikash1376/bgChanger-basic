@@ -18,6 +18,8 @@
             justify-content: center;
             align-items: center;
             transition: background-color 2s;
+            position: relative;
+            cursor: pointer;
         }
         button {
             padding: 6px 15px;
@@ -40,10 +42,22 @@
             border-radius: 5px;
             margin: 10px;
         }
+        .tooltip {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="container">
         <button id="start">Start</button>
         <button id="stop">Stop</button>
         <select id="timerInterval">
@@ -51,14 +65,17 @@
             <option value="3000">3 Seconds</option>
             <option value="5000">5 Seconds</option>
         </select>
+        <div class="tooltip" id="tooltip">Copied to clipboard!</div>
     </div>
     <script>
         const start = document.getElementById("start");
         const stop = document.getElementById("stop");
         const timerInterval = document.getElementById("timerInterval");
-        const container = document.querySelector('.container');
+        const container = document.getElementById("container");
+        const tooltip = document.getElementById("tooltip");
         let interval;
         let currentInterval = 2000; // Default to 2 seconds
+        let currentColor = "#212121"; // Initial background color
 
         function generateRandomColor() {
             const code = "0123456789ABCDEF";
@@ -69,10 +86,20 @@
             return saveCode;
         }
 
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                tooltip.style.opacity = 1;
+                setTimeout(() => {
+                    tooltip.style.opacity = 0;
+                }, 2000);
+            });
+        }
+
         start.addEventListener("click", () => {
             if (!interval) {
                 interval = setInterval(() => {
-                    container.style.backgroundColor = generateRandomColor();
+                    currentColor = generateRandomColor();
+                    container.style.backgroundColor = currentColor;
                 }, currentInterval);
             }
         });
@@ -87,9 +114,14 @@
             if (interval) {
                 clearInterval(interval);
                 interval = setInterval(() => {
-                    container.style.backgroundColor = generateRandomColor();
+                    currentColor = generateRandomColor();
+                    container.style.backgroundColor = currentColor;
                 }, currentInterval);
             }
+        });
+
+        container.addEventListener("click", () => {
+            copyToClipboard(currentColor);
         });
     </script>
 </body>
