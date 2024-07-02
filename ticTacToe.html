@@ -1,11 +1,327 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Tic Tac Toe</h1>
-</body>
-</html>
+<html><head>
+    <title>Tic Tac Toe</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+      body, html {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #ffffff;
+      }
+      #canvas-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+      }
+      .game-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+      }
+      h1 {
+        margin-bottom: 1rem;
+        font-size: 2.5em;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      }
+      .board {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 20px auto;
+        max-width: 300px;
+      }
+      .cell {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        font-size: 2.5em;
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.3s ease;
+        color: #ffffff;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+      }
+      .cell:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+      }
+      .cell.x {
+        color: #ff6b6b;
+      }
+      .cell.o {
+        color: #4ecdc4;
+      }
+      .status {
+        margin-bottom: 20px;
+        font-size: 1.2em;
+        font-weight: bold;
+        height: 1.5em;
+      }
+      .reset {
+        padding: 10px 20px;
+        font-size: 1em;
+        background-color: #ff6b6b;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+      }
+      .reset:hover {
+        background-color: #ff8787;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .player-turn {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+      }
+      .player {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        margin: 0 0.5rem;
+        transition: all 0.3s ease;
+      }
+      .player.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      }
+      @media (max-width: 400px) {
+        .game-container {
+          padding: 1rem;
+        }
+        h1 {
+          font-size: 2em;
+        }
+        .board {
+          max-width: 250px;
+        }
+        .cell {
+          font-size: 2em;
+        }
+      }
+    </style>
+    </head>
+    <body>
+    <div id="canvas-container"></div>
+    <div class="game-container">
+      <h1>3D Particle Tic Tac Toe</h1>
+      <div class="player-turn">
+        <div class="player" id="player-x">Player X</div>
+        <div class="player" id="player-o">Player O</div>
+      </div>
+      <div class="status" id="status"></div>
+      <div class="board" id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+      </div>
+      <button class="reset" id="reset">New Game</button>
+    </div>
+    
+    <script>
+    // 3D Particle Environment
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+    
+    const particles = new THREE.BufferGeometry();
+    const particleCount = 5000;
+    
+    const posArray = new Float32Array(particleCount * 3);
+    
+    for(let i = 0; i < particleCount * 3; i++) {
+      posArray[i] = (Math.random() - 0.5) * 5;
+    }
+    
+    particles.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    
+    const material = new THREE.PointsMaterial({
+      size: 0.005,
+      color: 0xffffff
+    });
+    
+    const particlesMesh = new THREE.Points(particles, material);
+    scene.add(particlesMesh);
+    
+    camera.position.z = 2;
+    
+    function animate() {
+      requestAnimationFrame(animate);
+      particlesMesh.rotation.x += 0.001;
+      particlesMesh.rotation.y += 0.001;
+      renderer.render(scene, camera);
+    }
+    
+    animate();
+    
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    
+    // Tic Tac Toe Game Logic
+    const board = document.getElementById('board');
+    const cells = document.querySelectorAll('.cell');
+    const status = document.getElementById('status');
+    const resetButton = document.getElementById('reset');
+    const playerX = document.getElementById('player-x');
+    const playerO = document.getElementById('player-o');
+    
+    let currentPlayer = 'X';
+    let gameState = ['', '', '', '', '', '', '', '', ''];
+    let gameActive = true;
+    
+    const winningConditions = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+    
+    function handleCellClick(clickedCellEvent) {
+      const clickedCell = clickedCellEvent.target;
+      const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
+    
+      if (gameState[clickedCellIndex] !== '' || !gameActive) {
+        return;
+      }
+    
+      gameState[clickedCellIndex] = currentPlayer;
+      clickedCell.textContent = currentPlayer;
+      clickedCell.classList.add(currentPlayer.toLowerCase());
+    
+      checkResult();
+    }
+    
+    function checkResult() {
+      let roundWon = false;
+      for (let i = 0; i < winningConditions.length; i++) {
+        const [a, b, c] = winningConditions[i];
+        if (gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
+          roundWon = true;
+          break;
+        }
+      }
+    
+      if (roundWon) {
+        status.textContent = `Player ${currentPlayer} wins!`;
+        gameActive = false;
+        celebrateWin(currentPlayer);
+        return;
+      }
+    
+      if (!gameState.includes('')) {
+        status.textContent = 'Game ended in a draw!';
+        gameActive = false;
+        return;
+      }
+    
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      updatePlayerTurn();
+    }
+    
+    function updatePlayerTurn() {
+      status.textContent = `Player ${currentPlayer}'s turn`;
+      if (currentPlayer === 'X') {
+        playerX.classList.add('active');
+        playerO.classList.remove('active');
+      } else {
+        playerO.classList.add('active');
+        playerX.classList.remove('active');
+      }
+    }
+    
+    function resetGame() {
+      currentPlayer = 'X';
+      gameState = ['', '', '', '', '', '', '', '', ''];
+      gameActive = true;
+      status.textContent = '';
+      cells.forEach(cell => {
+        cell.textContent = '';
+        cell.classList.remove('x', 'o');
+      });
+      updatePlayerTurn();
+    }
+    
+    function celebrateWin(player) {
+      const colors = player === 'X' ? ['#ff6b6b', '#ff8787'] : ['#4ecdc4', '#45b7aa'];
+      const shapes = player === 'X' ? ['cross'] : ['circle'];
+      
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: colors,
+        shapes: shapes
+      });
+    }
+    
+    cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+    resetButton.addEventListener('click', resetGame);
+    
+    updatePlayerTurn();
+    
+    // Custom shape for X
+    const drawCross = (ctx) => {
+      ctx.beginPath();
+      ctx.moveTo(-5, -5);
+      ctx.lineTo(5, 5);
+      ctx.moveTo(5, -5);
+      ctx.lineTo(-5, 5);
+      ctx.strokeStyle = '#ff6b6b';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    };
+    
+    // Custom shape for O
+    const drawCircle = (ctx) => {
+      ctx.beginPath();
+      ctx.arc(0, 0, 5, 0, 2 * Math.PI);
+      ctx.strokeStyle = '#4ecdc4';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    };
+    
+    // Add custom shapes to confetti
+    confetti.create(null, { resize: true })({
+      shapes: ['circle', 'square', 'cross'],
+      shapeOptions: {
+        cross: { draw: drawCross },
+        circle: { draw: drawCircle }
+      }
+    });
+    </script>
+    </body></html>
